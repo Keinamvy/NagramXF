@@ -3305,7 +3305,18 @@ public class NotificationsController extends BaseController {
             FileLog.e(e);
         }
     }
-
+    
+    public void dismissAllNotifications() {
+        notificationsQueue.postRunnable(() -> {
+            pushMessages.clear();
+            pushMessagesDict.clear();
+            wearNotificationsIds.clear();
+            lastWearNotifiedMessageId.clear();
+            // Don't call notificationManager.cancel() — Android already dismissed it
+            AndroidUtilities.runOnUIThread(() ->
+                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.pushMessagesUpdated));
+        });
+    }
     private void playInChatSound() {
         if (!inChatSoundEnabled || MediaController.getInstance().isRecordingAudio()) {
             return;
